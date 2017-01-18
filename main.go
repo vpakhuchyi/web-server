@@ -4,7 +4,7 @@ import (
 	"html/template"
 
 	"github.com/gin-gonic/gin"
-	"github.com/vpakhuchyi/geekstest/controllers"
+	"github.com/vpakhuchyi/web-server/controllers"
 )
 
 func main() {
