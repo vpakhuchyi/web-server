@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Test web-server</title>
+<style type="text/css">
+        body{
+            text-align: center;
+        }
+</style>
+</head>
+<body>
+               <h3>Please enter your request's data</h3>
+               <form action="/searchText" enctype="application/json" method="POST">
+               Text for search: <br>
+               <input type="text" name="SearchText" required><br><br>
+               Sites: <br>
+               <input type="text" name="Site"> <br><br>
+               <input type="text" name="Site"> <br><br>
+               <input type="text" name="Site"> <br><br>
+               <input type="submit" value="Find it"/>
+               </form>
+</body>
+</html>
