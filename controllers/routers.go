@@ -77,12 +77,9 @@ func checkConnectionToURL(url string) error {
 //searchForArgOnSites receive a string "text" for search and a []string "sites" for searching place;
 //func returns int that represent element from the "sites" where the "text" was found;
 //it returns -1 if the "text" wasn't found.
-<<<<<<< HEAD
-func searchForArgOnSites(text string, sites []string) int {
-	fmt.Println(sites)
-=======
+
 func searchForArgOnSites(text string, sites []string) (r int, err error) {
->>>>>>> 50f74e953c0faab2f565359c32f859ec86a3890a
+	fmt.Println(sites)
 	retext := regexp.MustCompile(text)
 	rehttp := regexp.MustCompile(`^https?://`)
 	var tmp string
@@ -108,18 +105,3 @@ func searchForArgOnSites(text string, sites []string) (r int, err error) {
 	err = errors.New("HTTP Code 204 No Content")
 	return r, err
 }
-
-// if val != "" {
-// 	if rehttp.MatchString(val) {
-// 		tmp = val
-// 	}
-// 	tmp = "http://" + val
-// 	_, err := http.Get(tmp)
-// 	if err != nil {
-// 		result = -2
-// 	}
-
-// 	if retext.Find(getContentFromURL(tmp)) != nil {
-// 		result = i
-// 	}
-// }
