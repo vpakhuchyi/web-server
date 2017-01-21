@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"errors"
+	"fmt"
 	"html/template"
 	"io/ioutil"
 	"net/http"
@@ -64,6 +65,7 @@ func getContentFromURL(url string) []byte {
 //func returns int that represent element from the "sites" where the "text" was found;
 //it returns -1 if the "text" wasn't found.
 func searchForArgOnSites(text string, sites []string) int {
+	fmt.Println(sites)
 	retext := regexp.MustCompile(text)
 	rehttp := regexp.MustCompile(`^https?://`)
 	var result int
