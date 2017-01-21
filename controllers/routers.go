@@ -2,7 +2,6 @@ package controllers
 
 import (
 	"errors"
-	"fmt"
 	"html/template"
 	"io/ioutil"
 	"net/http"
@@ -13,13 +12,13 @@ import (
 
 //Request is a struct for received JSON
 type Request struct {
-	Site       []string `json:"site"`
-	SearchText string   `json:"searchText"`
+	Site       []string `json:"Site"`
+	SearchText string   `json:"SearchText"`
 }
 
 //Response is a struct for transmited JSON
 type Response struct {
-	FoundAtSite string `json:"foundAtSite"`
+	FoundAtSite string `json:"FoundAtSite"`
 }
 
 //GETJSONHandler is a GET handler for "/searchText"
@@ -34,12 +33,12 @@ func POSTJSONHandler(c *gin.Context) {
 	var reqjson Request
 	if c.Bind(&reqjson) == nil && len(reqjson.Site) > 0 && len(reqjson.SearchText) > 0 {
 		var respjson Response
-		result, err := searchForArgOnSites(reqjson.SearchText, reqjson.Site)
+		result, err := SearchForArgOnSites(reqjson.SearchText, reqjson.Site)
 
 		if err != nil {
 			c.Error(err)
 		} else {
-			respjson.FoundAtSite = reqjson.Site[result]
+			respjson.FoundAtSite = result
 			c.JSON(http.StatusOK, respjson)
 		}
 
@@ -74,34 +73,33 @@ func checkConnectionToURL(url string) error {
 	return err
 }
 
-//searchForArgOnSites receive a string "text" for search and a []string "sites" for searching place;
-//func returns int that represent element from the "sites" where the "text" was found;
-//it returns -1 if the "text" wasn't found.
-
-func searchForArgOnSites(text string, sites []string) (r int, err error) {
-	fmt.Println(sites)
+//SearchForArgOnSites receive a string "text" for search and a []string "sites" for searching place;
+//func returns string and error;
+//if text was found it returnes string with URL where it was found and nil error;
+//func returns empty string and not-nil error when text wasn't found.
+func SearchForArgOnSites(text string, sites []string) (r string, err error) {
+	if text == "" {
+		err = errors.New("HTTP Code 400 invailid request")
+		return r, err
+	}
 	retext := regexp.MustCompile(text)
-	rehttp := regexp.MustCompile(`^https?://`)
-	var tmp string
-	for i, val := range sites {
-		if val != "" {
-			if rehttp.MatchString(val) {
-				tmp = val
-			}
-			tmp = "http://" + val
 
-			if checkConnectionToURL(tmp) != nil {
-				err = errors.New("HTTP Code 400 Invailid request")
-				continue
-			}
+	for _, val := range sites {
 
-			if retext.Find(getContentFromURL(tmp)) != nil {
-				r = i
-			}
+		if checkConnectionToURL(val) != nil {
+			err = errors.New("HTTP Code 400 invailid request")
+			continue
+		}
+
+		if retext.Find(getContentFromURL(val)) != nil {
+			r = val
+			err = nil
+			break
+		} else {
+			err = errors.New("HTTP Code 204 no content")
 		}
 
 	}
-	r = -1
-	err = errors.New("HTTP Code 204 No Content")
+
 	return r, err
 }
