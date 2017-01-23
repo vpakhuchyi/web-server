@@ -2,7 +2,6 @@ package routers
 
 import (
 	"errors"
-	"html/template"
 	"io/ioutil"
 	"net/http"
 	"regexp"
@@ -12,12 +11,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/vpakhuchyi/web-server/models"
 )
-
-//GETJSONHandler is a GET handler for "/searchText"
-func GETJSONHandler(c *gin.Context) {
-	t, _ := template.ParseFiles("templates/default.tmpl")
-	t.Execute(c.Writer, nil)
-}
 
 //POSTJSONHandler is a POST handler for "/searchText";
 //it checks incoming JSON and sends a result of "searchForArgsOnEachSite" func as JSON response.
