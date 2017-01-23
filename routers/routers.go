@@ -1,4 +1,4 @@
-package controllers
+package routers
 
 import (
 	"errors"
@@ -7,19 +7,11 @@ import (
 	"net/http"
 	"regexp"
 
+	"strconv"
+
 	"github.com/gin-gonic/gin"
+	"github.com/vpakhuchyi/web-server/models"
 )
-
-//Request is a struct for received JSON
-type Request struct {
-	Site       []string `json:"Site"`
-	SearchText string   `json:"SearchText"`
-}
-
-//Response is a struct for transmited JSON
-type Response struct {
-	FoundAtSite string `json:"FoundAtSite"`
-}
 
 //GETJSONHandler is a GET handler for "/searchText"
 func GETJSONHandler(c *gin.Context) {
@@ -30,34 +22,26 @@ func GETJSONHandler(c *gin.Context) {
 //POSTJSONHandler is a POST handler for "/searchText";
 //it checks incoming JSON and sends a result of "searchForArgsOnEachSite" func as JSON response.
 func POSTJSONHandler(c *gin.Context) {
-	var reqjson Request
+	var reqjson models.Request
 	if c.Bind(&reqjson) == nil && len(reqjson.Site) > 0 && len(reqjson.SearchText) > 0 {
-		var respjson Response
+		var respjson models.Response
 		result, err := SearchForArgOnSites(reqjson.SearchText, reqjson.Site)
-
+		code := 400
 		if err != nil {
 			c.Error(err)
+
+			if err.Error() == "no content" {
+				code = 204
+			}
+			c.Writer.WriteString("HTTP code " + strconv.Itoa(code) + " " + err.Error())
 		} else {
 			respjson.FoundAtSite = result
 			c.JSON(http.StatusOK, respjson)
 		}
 
-		// switch err {
-		// case -1:
-		// 	c.Writer.WriteString("HTTP Code 204 No Content")
-		// 	c.AbortWithError(204, errors.New("HTTP Code 204 No Content"))
-		// case -2:
-		// 	c.Writer.WriteString("HTTP Code 400 Invailid request")
-		// 	c.AbortWithError(400, errors.New("HTTP Code 400 Invailid request"))
-		// default:
-		// 	respjson.FoundAtSite = reqjson.Site[result]
-		// 	c.JSON(http.StatusOK, respjson)
-		// }
 	}
 }
 
-//getContentFromURL get Body from a URL and parse it to []byte;
-//it returns nil when "url" is empty.
 func getContentFromURL(url string) []byte {
 	if url != "" {
 		res, _ := http.Get(url)
@@ -79,7 +63,7 @@ func checkConnectionToURL(url string) error {
 //func returns empty string and not-nil error when text wasn't found.
 func SearchForArgOnSites(text string, sites []string) (r string, err error) {
 	if text == "" {
-		err = errors.New("HTTP Code 400 invailid request")
+		err = errors.New("invailid request")
 		return r, err
 	}
 	retext := regexp.MustCompile(text)
@@ -87,7 +71,7 @@ func SearchForArgOnSites(text string, sites []string) (r string, err error) {
 	for _, val := range sites {
 
 		if checkConnectionToURL(val) != nil {
-			err = errors.New("HTTP Code 400 invailid request")
+			err = errors.New("invailid request")
 			continue
 		}
 
@@ -96,7 +80,7 @@ func SearchForArgOnSites(text string, sites []string) (r string, err error) {
 			err = nil
 			break
 		} else {
-			err = errors.New("HTTP Code 204 no content")
+			err = errors.New("no content")
 		}
 
 	}
